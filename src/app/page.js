@@ -2,12 +2,13 @@
 import React, { useState } from 'react';
 import '@solana/web3.js';
 import { Helius } from 'helius-sdk';
-
+import Bottleneck from 'bottleneck';
 
 export default function Home() {
-  const [assetInfoList, setAssetInfoList] = useState([]); // Use state for assetInfoList
+  const [assetInfoList] = useState([]); // Use state for assetInfoList
   const ownerAddress = "Gmc26GMnhE3AWwdAQpxxsQPo6UYaob4wPRxUpmDsujoX";
   const HeliusKey = new Helius("cfa7ca19-e84e-44f9-b4e0-8ea6eb251e1b");
+  const limiter = new Bottleneck({maxConcurrent: 1, minTime: 40});
 
   async function getTPS() {
     const tps = await HeliusKey.rpc.getCurrentTPS();
@@ -15,13 +16,40 @@ export default function Home() {
   }
 
   async function searchAssets() {
-    const response = await HeliusKey.rpc.searchAssets({ ownerAddress, compressed: true, page: 1 });
-    const ids = response.items.map((item) => item.id);
+    const response = await HeliusKey.rpc.searchAssets({ ownerAddress: ownerAddress, compressed: true, page: 1 });
+    const ids = response.items.map(item => item.id);
 
-    const assetInfos = await Promise.all(ids.map((id) => getAssetInfo(id)));
-    const filteredInfos = assetInfos.filter((info) => info.state);
+    // Use Promise.all to fetch asset info concurrently while respecting the rate limiter
+    const promises = ids.map(id => limiter.schedule(() => getAssetInfoWithRetry(id)));
+    const assetInfos = await Promise.all(promises);
 
-    setAssetInfoList(filteredInfos); // Update the state
+    assetInfoList.push(...assetInfos.filter(info => info && info.state));
+    console.log(assetInfoList);
+  }
+
+  async function getAssetInfoWithRetry(id, maxRetries = 3) {
+    let retries = 0;
+    while (retries < maxRetries) {
+      try {
+        const info = await getAssetInfo(id);
+        if (info.state) {
+          return info;
+        }
+      } catch (error) {
+        if (error.response && error.response.status === 429) {
+          // Retry after a short delay, with exponential backoff
+          const delay = Math.pow(2, retries) * 10000; // Exponential backoff in milliseconds
+          await new Promise(resolve => setTimeout(resolve, delay));
+          retries++;
+        } else {
+          // Handle other errors
+          console.error("Error in getAsset:", error);
+          break;
+        }
+      }
+    }
+    console.error(`Max retries (${maxRetries}) reached for getAssetInfo.`);
+    return null;
   }
 
   async function getAssetInfo(id) {
@@ -32,134 +60,133 @@ export default function Home() {
     const assetId = response.id;
     return { name, assetId, state, image };
   }
+  
 
-  async function displayImages() {
-    const imageGrid = document.querySelector(".image-grid");
-    for (const assetInfo of assetInfoList) {
-      const imgElement = document.createElement("img");
-      imgElement.src = assetInfo.image;
-      imgElement.alt = assetInfo.name;
-      imageGrid.appendChild(imgElement);
-    }
+  async function getAssetInfo(id) {
+    const response = await HeliusKey.rpc.getAsset(id);
+    const name = response.content.name;
+    const state = response.compression.compressed;
+    const image = response.content.links.image;
+    const assetId = response.id;
+    return { name, assetId, state, image };
   }
 
   return (
     <main>
       <link rel="stylesheet" href="https://unpkg.com/terminal.css@0.7.2/dist/terminal.min.css" />
       <title>Basket</title>
-      <section class="terminal-output">
+      <section className="terminal-output">
         <p>Welcome to the cNFT Basket</p>
-        <div class="output-area"></div>
+        <div className="output-area"></div>
       </section>
-      <section class="terminal-input-section">
-        <button class="btn btn-default" onClick={() => getTPS()}>Get TPS</button>
-        <button class="btn btn-default" onClick={() => searchAssets()}>Search Assets</button>
-        <button class="btn btn-default" onClick={() => displayImages()}>Fetch Images</button>
+      <section className="terminal-input-section">
+        <button className="btn btn-default" onClick={() => getTPS()}>Get TPS</button>
+        <button className="btn btn-default" onClick={() => searchAssets()}>Search Assets</button>
       </section>
-      <div class="article-grid">
+      <div className="article-grid">
         <a>
           <div className="equilibrium-image-container">
-            <img class="view-icon" src="icon-view.svg" alt="View Icon"></img>
-            <img class="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
+            <img className="view-icon" src="icon-view.svg" alt="View Icon"></img>
+            <img className="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
               title="Equilibrium logo" height="604" width="604"></img>
           </div>
-          <div class="profile-nick-div">
-            <h2><span class="hover-cyan">Equilibrium &#x23;3429</span></h2>
+          <div className="profile-nick-div">
+            <h2><span className="hover-cyan">Equilibrium &#x23;3429</span></h2>
           </div>
         </a>
         <a>
-          <div class="equilibrium-image-container">
-            <img class="view-icon" src="icon-view.svg" alt="View Icon"></img>
-            <img class="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
+          <div className="equilibrium-image-container">
+            <img className="view-icon" src="icon-view.svg" alt="View Icon"></img>
+            <img className="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
               title="Equilibrium logo" height="604" width="604"></img>
           </div>
-          <div class="profile-nick-div">
-            <h2><span class="hover-cyan">Equilibrium &#x23;3429</span></h2>
+          <div className="profile-nick-div">
+            <h2><span className="hover-cyan">Equilibrium &#x23;3429</span></h2>
           </div>
         </a>
         <a>
-          <div class="equilibrium-image-container">
-            <img class="view-icon" src="icon-view.svg" alt="View Icon"></img>
-            <img class="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
+          <div className="equilibrium-image-container">
+            <img className="view-icon" src="icon-view.svg" alt="View Icon"></img>
+            <img className="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
               title="Equilibrium logo" height="604" width="604"></img>
           </div>
-          <div class="profile-nick-div">
-            <h2><span class="hover-cyan">Equilibrium &#x23;3429</span></h2>
+          <div className="profile-nick-div">
+            <h2><span className="hover-cyan">Equilibrium &#x23;3429</span></h2>
           </div>
         </a>
         <a>
-          <div class="equilibrium-image-container">
-            <img class="view-icon" src="icon-view.svg" alt="View Icon"></img>
-            <img class="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
+          <div className="equilibrium-image-container">
+            <img className="view-icon" src="icon-view.svg" alt="View Icon"></img>
+            <img className="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
               title="Equilibrium logo" height="604" width="604"></img>
           </div>
-          <div class="profile-nick-div">
-            <h2><span class="hover-cyan">Equilibrium &#x23;3429</span></h2>
+          <div className="profile-nick-div">
+            <h2><span className="hover-cyan">Equilibrium &#x23;3429</span></h2>
           </div>
         </a>
         <a>
-          <div class="equilibrium-image-container">
-            <img class="view-icon" src="icon-view.svg" alt="View Icon"></img>
-            <img class="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
+          <div className="equilibrium-image-container">
+            <img className="view-icon" src="icon-view.svg" alt="View Icon"></img>
+            <img className="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
               title="Equilibrium logo" height="604" width="604"></img>
           </div>
-          <div class="profile-nick-div">
-            <h2><span class="hover-cyan">Equilibrium &#x23;3429</span></h2>
+          <div className="profile-nick-div">
+            <h2><span className="hover-cyan">Equilibrium &#x23;3429</span></h2>
           </div>
         </a>
         <a>
-          <div class="equilibrium-image-container">
-            <img class="view-icon" src="icon-view.svg" alt="View Icon"></img>
-            <img class="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
+          <div className="equilibrium-image-container">
+            <img className="view-icon" src="icon-view.svg" alt="View Icon"></img>
+            <img className="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
               title="Equilibrium logo" height="604" width="604"></img>
           </div>
-          <div class="profile-nick-div">
-            <h2><span class="hover-cyan">Equilibrium &#x23;3429</span></h2>
+          <div className="profile-nick-div">
+            <h2><span className="hover-cyan">Equilibrium &#x23;3429</span></h2>
           </div>
         </a>
         <a>
-          <div class="equilibrium-image-container">
-            <img class="view-icon" src="icon-view.svg" alt="View Icon"></img>
-            <img class="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
+          <div className="equilibrium-image-container">
+            <img className="view-icon" src="icon-view.svg" alt="View Icon"></img>
+            <img className="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
               title="Equilibrium logo" height="604" width="604"></img>
           </div>
-          <div class="profile-nick-div">
-            <h2><span class="hover-cyan">Equilibrium &#x23;3429</span></h2>
+          <div className="profile-nick-div">
+            <h2><span className="hover-cyan">Equilibrium &#x23;3429</span></h2>
           </div>
         </a>
         <a>
-          <div class="equilibrium-image-container">
-            <img class="view-icon" src="icon-view.svg" alt="View Icon"></img>
-            <img class="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
+          <div className="equilibrium-image-container">
+            <img className="view-icon" src="icon-view.svg" alt="View Icon"></img>
+            <img className="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
               title="Equilibrium logo" height="604" width="604"></img>
           </div>
-          <div class="profile-nick-div">
-            <h2><span class="hover-cyan">Equilibrium &#x23;3429</span></h2>
+          <div className="profile-nick-div">
+            <h2><span className="hover-cyan">Equilibrium &#x23;3429</span></h2>
           </div>
         </a>
         <a>
-          <div class="equilibrium-image-container">
-            <img class="view-icon" src="icon-view.svg" alt="View Icon"></img>
-            <img class="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
+          <div className="equilibrium-image-container">
+            <img className="view-icon" src="icon-view.svg" alt="View Icon"></img>
+            <img className="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
               title="Equilibrium logo" height="604" width="604"></img>
           </div>
-          <div class="profile-nick-div">
-            <h2><span class="hover-cyan">Equilibrium &#x23;3429</span></h2>
+          <div className="profile-nick-div">
+            <h2><span className="hover-cyan">Equilibrium &#x23;3429</span></h2>
           </div>
         </a>
         <a>
-          <div class="equilibrium-image-container">
-            <img class="view-icon" src="icon-view.svg" alt="View Icon"></img>
-            <img class="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
+          <div className="equilibrium-image-container">
+            <img className="view-icon" src="icon-view.svg" alt="View Icon"></img>
+            <img className="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
               title="Equilibrium logo" height="604" width="604"></img>
           </div>
-          <div class="profile-nick-div">
-            <h2><span class="hover-cyan">Equilibrium &#x23;3429</span></h2>
+          <div className="profile-nick-div">
+            <h2><span className="hover-cyan">Equilibrium &#x23;3429</span></h2>
           </div>
         </a>
       </div>
       <br></br>
-      <div class="terminal-output">2023 Basket</div>
+      <div className="terminal-output">2023 Basket</div>
       <br></br>
     </main>
   )
