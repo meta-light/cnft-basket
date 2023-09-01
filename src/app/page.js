@@ -1,9 +1,16 @@
 'use client';
-import React, { useState } from 'react';
-import '@solana/web3.js';
+import React, { useState, useMemo } from 'react';
+import { clusterApiUrl } from '@solana/web3.js';
 import { Helius } from 'helius-sdk';
 import Bottleneck from 'bottleneck';
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import {ConnectionProvider, WalletProvider} from '@solana/wallet-adapter-react';
+import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
+import '@solana/wallet-adapter-react-ui/styles.css';
+import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
+import { useWallet } from "@solana/wallet-adapter-react";
 
 export default function Home() {
   const [assetInfoList] = useState([]); // Use state for assetInfoList
@@ -19,11 +26,8 @@ export default function Home() {
   async function searchAssets() {
     const response = await HeliusKey.rpc.searchAssets({ ownerAddress: ownerAddress, compressed: true, page: 1 });
     const ids = response.items.map(item => item.id);
-
-    // Use Promise.all to fetch asset info concurrently while respecting the rate limiter
     const promises = ids.map(id => limiter.schedule(() => getAssetInfoWithRetry(id)));
     const assetInfos = await Promise.all(promises);
-
     assetInfoList.push(...assetInfos.filter(info => info && info.state));
     console.log(assetInfoList);
   }
@@ -38,12 +42,10 @@ export default function Home() {
         }
       } catch (error) {
         if (error.response && error.response.status === 429) {
-          // Retry after a short delay, with exponential backoff
           const delay = Math.pow(2, retries) * 10000; // Exponential backoff in milliseconds
           await new Promise(resolve => setTimeout(resolve, delay));
           retries++;
         } else {
-          // Handle other errors
           console.error("Error in getAsset:", error);
           break;
         }
