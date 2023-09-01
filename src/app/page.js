@@ -63,16 +63,6 @@ export default function Home() {
     const assetId = response.id;
     return { name, assetId, state, image };
   }
-  
-
-  async function getAssetInfo(id) {
-    const response = await HeliusKey.rpc.getAsset(id);
-    const name = response.content.name;
-    const state = response.compression.compressed;
-    const image = response.content.links.image;
-    const assetId = response.id;
-    return { name, assetId, state, image };
-  }
 
   return (
     <main>
@@ -87,110 +77,17 @@ export default function Home() {
         <button className="btn btn-default" onClick={() => searchAssets()}>Search Assets</button>
       </section>
       <div className="article-grid">
-        <a>
-          <div className="equilibrium-image-container">
-            <img className="view-icon" src="icon-view.svg" alt="View Icon"></img>
-            <img className="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
-              title="Equilibrium logo" height="604" width="604"></img>
-          </div>
-          <div className="profile-nick-div">
-            <h2><span className="hover-cyan">Equilibrium &#x23;3429</span></h2>
-          </div>
-        </a>
-        <a>
-          <div className="equilibrium-image-container">
-            <img className="view-icon" src="icon-view.svg" alt="View Icon"></img>
-            <img className="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
-              title="Equilibrium logo" height="604" width="604"></img>
-          </div>
-          <div className="profile-nick-div">
-            <h2><span className="hover-cyan">Equilibrium &#x23;3429</span></h2>
-          </div>
-        </a>
-        <a>
-          <div className="equilibrium-image-container">
-            <img className="view-icon" src="icon-view.svg" alt="View Icon"></img>
-            <img className="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
-              title="Equilibrium logo" height="604" width="604"></img>
-          </div>
-          <div className="profile-nick-div">
-            <h2><span className="hover-cyan">Equilibrium &#x23;3429</span></h2>
-          </div>
-        </a>
-        <a>
-          <div className="equilibrium-image-container">
-            <img className="view-icon" src="icon-view.svg" alt="View Icon"></img>
-            <img className="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
-              title="Equilibrium logo" height="604" width="604"></img>
-          </div>
-          <div className="profile-nick-div">
-            <h2><span className="hover-cyan">Equilibrium &#x23;3429</span></h2>
-          </div>
-        </a>
-        <a>
-          <div className="equilibrium-image-container">
-            <img className="view-icon" src="icon-view.svg" alt="View Icon"></img>
-            <img className="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
-              title="Equilibrium logo" height="604" width="604"></img>
-          </div>
-          <div className="profile-nick-div">
-            <h2><span className="hover-cyan">Equilibrium &#x23;3429</span></h2>
-          </div>
-        </a>
-        <a>
-          <div className="equilibrium-image-container">
-            <img className="view-icon" src="icon-view.svg" alt="View Icon"></img>
-            <img className="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
-              title="Equilibrium logo" height="604" width="604"></img>
-          </div>
-          <div className="profile-nick-div">
-            <h2><span className="hover-cyan">Equilibrium &#x23;3429</span></h2>
-          </div>
-        </a>
-        <a>
-          <div className="equilibrium-image-container">
-            <img className="view-icon" src="icon-view.svg" alt="View Icon"></img>
-            <img className="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
-              title="Equilibrium logo" height="604" width="604"></img>
-          </div>
-          <div className="profile-nick-div">
-            <h2><span className="hover-cyan">Equilibrium &#x23;3429</span></h2>
-          </div>
-        </a>
-        <a>
-          <div className="equilibrium-image-container">
-            <img className="view-icon" src="icon-view.svg" alt="View Icon"></img>
-            <img className="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
-              title="Equilibrium logo" height="604" width="604"></img>
-          </div>
-          <div className="profile-nick-div">
-            <h2><span className="hover-cyan">Equilibrium &#x23;3429</span></h2>
-          </div>
-        </a>
-        <a>
-          <div className="equilibrium-image-container">
-            <img className="view-icon" src="icon-view.svg" alt="View Icon"></img>
-            <img className="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
-              title="Equilibrium logo" height="604" width="604"></img>
-          </div>
-          <div className="profile-nick-div">
-            <h2><span className="hover-cyan">Equilibrium &#x23;3429</span></h2>
-          </div>
-        </a>
-        <a>
-          <div className="equilibrium-image-container">
-            <img className="view-icon" src="icon-view.svg" alt="View Icon"></img>
-            <img className="equilibrium-image" src="image-equilibrium.jpg" alt="Equilibrium image"
-              title="Equilibrium logo" height="604" width="604"></img>
-          </div>
-          <div className="profile-nick-div">
-            <h2><span className="hover-cyan">Equilibrium &#x23;3429</span></h2>
-          </div>
-        </a>
+        {assetInfoList.map((assetInfoList, index) => (
+          <article key={index}>
+            <img src={assetInfoList.image} alt={assetInfoList.name} />
+            <h2>{assetInfoList.name}</h2>
+          </article>
+        ))}
       </div>
       <br></br>
       <div className="terminal-output">2023 Basket</div>
       <br></br>
     </main>
   )
+  
 }
