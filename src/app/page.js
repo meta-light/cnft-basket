@@ -83,6 +83,24 @@ export default function Home() {
             <h2>{assetInfoList.name}</h2>
           </article>
         ))}
+        
+
+          
+        {/* -- this is the formatting needed to restore styling
+        <article>
+          <div class="equilibrium-image-container">
+            <img class="view-icon" src="public/icon-view.svg" alt="View Icon"></img>
+            <img class="equilibrium-image" src="public/image-equilibrium.jpg" alt="Equilibrium image"
+              title="Equilibrium logo" height="604" width="604"></img>
+          </div>
+          <div class="profile-nick-div">
+            <h2><span class="hover-cyan">Equilibrium &#x23;3429</span></h2>
+          </div>
+        </article> 
+        */}
+
+
+
       </div>
       <br></br>
       <div className="terminal-output">2023 Basket</div>
