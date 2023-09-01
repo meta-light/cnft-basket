@@ -3,10 +3,11 @@ import React, { useState } from 'react';
 import '@solana/web3.js';
 import { Helius } from 'helius-sdk';
 import Bottleneck from 'bottleneck';
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 
 export default function Home() {
   const [assetInfoList] = useState([]); // Use state for assetInfoList
-  const ownerAddress = "Gmc26GMnhE3AWwdAQpxxsQPo6UYaob4wPRxUpmDsujoX";
+  const ownerAddress = "9cpGSYpRthttGo3QvidzWbd3nseHP3fGSURQvqsih7dw";
   const HeliusKey = new Helius("cfa7ca19-e84e-44f9-b4e0-8ea6eb251e1b");
   const limiter = new Bottleneck({maxConcurrent: 1, minTime: 40});
 
