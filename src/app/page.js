@@ -1,22 +1,22 @@
 'use client';
 import React, { useState, useMemo } from 'react';
-import { clusterApiUrl } from '@solana/web3.js';
+// import { clusterApiUrl } from '@solana/web3.js';
 import { Helius } from 'helius-sdk';
 import Bottleneck from 'bottleneck';
 
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import {ConnectionProvider, WalletProvider} from '@solana/wallet-adapter-react';
-import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
-import '@solana/wallet-adapter-react-ui/styles.css';
-import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-import { useWallet } from "@solana/wallet-adapter-react";
+// import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+// import {ConnectionProvider, WalletProvider} from '@solana/wallet-adapter-react';
+// import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+// import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
+// import '@solana/wallet-adapter-react-ui/styles.css';
+// import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
+// import { useWallet } from "@solana/wallet-adapter-react";
 
 export default function Home() {
   const [assetInfoList] = useState([]); // Use state for assetInfoList
   const ownerAddress = "9cpGSYpRthttGo3QvidzWbd3nseHP3fGSURQvqsih7dw";
   const HeliusKey = new Helius("cfa7ca19-e84e-44f9-b4e0-8ea6eb251e1b");
-  const limiter = new Bottleneck({maxConcurrent: 1, minTime: 40});
+  const limiter = new Bottleneck({maxConcurrent: 1, minTime: 300});
 
   async function getTPS() {
     const tps = await HeliusKey.rpc.getCurrentTPS();
@@ -42,7 +42,7 @@ export default function Home() {
         }
       } catch (error) {
         if (error.response && error.response.status === 429) {
-          const delay = Math.pow(2, retries) * 10000; // Exponential backoff in milliseconds
+          const delay = Math.pow(2, retries) * 1000; // Exponential backoff in milliseconds
           await new Promise(resolve => setTimeout(resolve, delay));
           retries++;
         } else {
@@ -57,7 +57,7 @@ export default function Home() {
 
   async function getAssetInfo(id) {
     const response = await HeliusKey.rpc.getAsset(id);
-    const name = response.content.name;
+    const name = String(response.content.metadata.name);
     const state = response.compression.compressed;
     const image = response.content.links.image;
     const assetId = response.id;
@@ -79,33 +79,19 @@ export default function Home() {
       <div className="article-grid">
         {assetInfoList.map((assetInfoList, index) => (
           <article key={index}>
-            <img src={assetInfoList.image} alt={assetInfoList.name} />
-            <h2>{assetInfoList.name}</h2>
+            <div className="equlibrium-image-container">
+              <img className="view-icon-hover" src="icon-view.svg" alt="View Icon" />
+              <img className="equilibrium-image" src={assetInfoList.image} alt={assetInfoList.name} width="604"/>
+              <div className="profile-nick-div">
+                <h2><span class="hover-cyan">{assetInfoList.name}</span></h2>
+              </div>
+            </div>
           </article>
         ))}
-        
-
-          
-        {/* -- this is the formatting needed to restore styling
-        <article>
-          <div class="equilibrium-image-container">
-            <img class="view-icon" src="public/icon-view.svg" alt="View Icon"></img>
-            <img class="equilibrium-image" src="public/image-equilibrium.jpg" alt="Equilibrium image"
-              title="Equilibrium logo" height="604" width="604"></img>
-          </div>
-          <div class="profile-nick-div">
-            <h2><span class="hover-cyan">Equilibrium &#x23;3429</span></h2>
-          </div>
-        </article> 
-        */}
-
-
-
       </div>
       <br></br>
-      <div className="terminal-output">2023 Basket</div>
+      <div className="terminal-output">Basket</div>
       <br></br>
     </main>
   )
-  
 }

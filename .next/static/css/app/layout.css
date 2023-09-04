@@ -133,10 +133,12 @@ article {
     border-radius: 5px;
 }
 
-.view-icon {
-    position: absolute;
-    top: 42%;
-    left: 43%;
+.view-icon-hover {
+    display: flex;
+    position: relative;
+    align-items: center;
+    top: 40%;
+    left: 40%;
     width: 40px;
 }
 
