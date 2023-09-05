@@ -1,14 +1,18 @@
 'use client';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 // import { clusterApiUrl } from '@solana/web3.js';
 import { Helius } from 'helius-sdk';
 import Bottleneck from 'bottleneck';
 
 export default function Home() {
-  const [assetInfoList] = useState([]); // Use state for assetInfoList
+  const [assetInfoList, setAssetInfoList] = useState([]); // Use state for assetInfoList
   const ownerAddress = "9cpGSYpRthttGo3QvidzWbd3nseHP3fGSURQvqsih7dw";
   const HeliusKey = new Helius("cfa7ca19-e84e-44f9-b4e0-8ea6eb251e1b");
-  const limiter = new Bottleneck({maxConcurrent: 1, minTime: 1000});
+  const limiter = new Bottleneck({maxConcurrent: 5, minTime: 200});
+
+  useEffect(() => {
+    searchAssets();
+  }, []);
 
   async function getTPS() {
     const tps = await HeliusKey.rpc.getCurrentTPS();
@@ -16,12 +20,15 @@ export default function Home() {
   }
 
   async function searchAssets() {
-    const response = await HeliusKey.rpc.searchAssets({ ownerAddress: ownerAddress, compressed: true, page: 1 });
-    const ids = response.items.map(item => item.id);
-    const promises = ids.map(id => limiter.schedule(() => getAssetInfoWithRetry(id)));
-    const assetInfos = await Promise.all(promises);
-    assetInfoList.push(...assetInfos.filter(info => info && info.state));
-    console.log(assetInfoList);
+    try {
+      const response = await HeliusKey.rpc.searchAssets({ ownerAddress, compressed: true, page: 1 });
+      const ids = response.items.map(item => item.id);
+      const assetInfos = await Promise.all(ids.map(id => limiter.schedule(() => getAssetInfoWithRetry(id))));
+      setAssetInfoList(assetInfos.filter(info => info && info.state));
+    } catch (error) {
+      console.error("Error in searchAssets:", error);
+    }
+    console.log("Asset Info List:", assetInfoList);
   }
 
   async function getAssetInfoWithRetry(id, maxRetries = 3) {
@@ -38,17 +45,13 @@ export default function Home() {
           await new Promise(resolve => setTimeout(resolve, delay));
           retries++;
         } else {
-          console.error("Error in getAsset:", error);
+          console.error("Error in getAssetInfoWithRetry:", error);
           break;
         }
       }
     }
-    console.error(`Max retries (${maxRetries}) reached for getAssetInfo.`);
+    console.error(`Max retries (${maxRetries}) reached for getAssetInfoWithRetry.`);
     return null;
-  }
-
-  function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   async function getAssetInfo(id) {
@@ -57,8 +60,13 @@ export default function Home() {
     const state = response.compression.compressed;
     const image = response.content.links.image;
     const assetId = response.id;
-    await sleep(10);
+    await sleep(50);
+    console.log("asset logged");
     return { name, assetId, state, image };
+  }
+
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   return (
@@ -72,6 +80,7 @@ export default function Home() {
       <section className="terminal-input-section">
         <button className="btn btn-default" onClick={() => getTPS()}>Get TPS</button>
         <button className="btn btn-default" onClick={() => searchAssets()}>Search Assets</button>
+        <h>Assets Found: {assetInfoList.length > 0 ? `(${assetInfoList.length} items)` : ''}</h>
       </section>
       <div className="article-grid">
         {assetInfoList.map((assetInfoList, index) => (
