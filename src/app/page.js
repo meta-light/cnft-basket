@@ -4,19 +4,11 @@ import React, { useState, useMemo } from 'react';
 import { Helius } from 'helius-sdk';
 import Bottleneck from 'bottleneck';
 
-// import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-// import {ConnectionProvider, WalletProvider} from '@solana/wallet-adapter-react';
-// import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-// import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
-// import '@solana/wallet-adapter-react-ui/styles.css';
-// import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-// import { useWallet } from "@solana/wallet-adapter-react";
-
 export default function Home() {
   const [assetInfoList] = useState([]); // Use state for assetInfoList
   const ownerAddress = "9cpGSYpRthttGo3QvidzWbd3nseHP3fGSURQvqsih7dw";
   const HeliusKey = new Helius("cfa7ca19-e84e-44f9-b4e0-8ea6eb251e1b");
-  const limiter = new Bottleneck({maxConcurrent: 1, minTime: 300});
+  const limiter = new Bottleneck({maxConcurrent: 1, minTime: 1000});
 
   async function getTPS() {
     const tps = await HeliusKey.rpc.getCurrentTPS();
@@ -55,12 +47,17 @@ export default function Home() {
     return null;
   }
 
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
   async function getAssetInfo(id) {
     const response = await HeliusKey.rpc.getAsset(id);
     const name = String(response.content.metadata.name);
     const state = response.compression.compressed;
     const image = response.content.links.image;
     const assetId = response.id;
+    await sleep(10);
     return { name, assetId, state, image };
   }
 
@@ -83,7 +80,7 @@ export default function Home() {
               <img className="view-icon-hover" src="icon-view.svg" alt="View Icon" />
               <img className="equilibrium-image" src={assetInfoList.image} alt={assetInfoList.name} width="604"/>
               <div className="profile-nick-div">
-                <h2><span class="hover-cyan">{assetInfoList.name}</span></h2>
+                <h2><span className="hover-cyan">{assetInfoList.name}</span></h2>
               </div>
             </div>
           </article>
@@ -95,3 +92,4 @@ export default function Home() {
     </main>
   )
 }
+
