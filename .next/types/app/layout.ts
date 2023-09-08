@@ -1,4 +1,4 @@
-// File: /Users/nickcarp/next-basket/src/app/layout.js
+// File: /Users/nickcarp/basket/src/app/layout.js
 import * as entry from '../../../src/app/layout.js'
 import type { ResolvingMetadata } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
