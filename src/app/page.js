@@ -1,12 +1,19 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-// import { clusterApiUrl } from '@solana/web3.js';
 import { Helius } from 'helius-sdk';
+import { pRateLimit } from "p-ratelimit";
 
 export default function Home() {
   const [assetInfoList, setAssetInfoList] = useState([]); // Use state for assetInfoList
   const ownerAddress = "9cpGSYpRthttGo3QvidzWbd3nseHP3fGSURQvqsih7dw";
   const HeliusKey = new Helius("cfa7ca19-e84e-44f9-b4e0-8ea6eb251e1b");
+
+  const heliusLimit = pRateLimit({
+    interval: 60000, // 60000 ms == 1 minute
+    rate: 120, // 120 API calls per interval
+    concurrency: 10, // no more than 10 running at once
+    maxDelay: 2000, // an API call delayed > 2 sec is rejected
+  });
 
   useEffect(() => {
     searchAssets();
@@ -19,7 +26,7 @@ export default function Home() {
 
   async function searchAssets() {
     try {
-      const response = await HeliusKey.rpc.searchAssets({ ownerAddress, compressed: true, page: 1 });
+      const response = await heliusLimit(() =>HeliusKey.rpc.searchAssets({ ownerAddress, compressed: true, page: 1 }));
       console.log(response);
       const assetInfos = response.items.map(item => ({
         name: String(item.content.metadata.name),
