@@ -53,6 +53,7 @@ export default function Home() {
         <button className="btn btn-default" onClick={() => searchAssets()}>Search Assets</button>
         <h>Assets Found: {assetInfoList.length > 0 ? `(${assetInfoList.length} items)` : ''}</h>
       </section>
+      <br></br>
       <div className="article-grid">
         {assetInfoList.map((assetInfoList, index) => (
           <article key={index}>
