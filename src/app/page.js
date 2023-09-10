@@ -7,7 +7,6 @@ export default function Home() {
   const [assetInfoList, setAssetInfoList] = useState([]); // Use state for assetInfoList
   const ownerAddress = "9cpGSYpRthttGo3QvidzWbd3nseHP3fGSURQvqsih7dw";
   const HeliusKey = new Helius("cfa7ca19-e84e-44f9-b4e0-8ea6eb251e1b");
-
   const heliusLimit = pRateLimit({
     interval: 60000, // 60000 ms == 1 minute
     rate: 120, // 120 API calls per interval
@@ -15,9 +14,7 @@ export default function Home() {
     maxDelay: 2000, // an API call delayed > 2 sec is rejected
   });
 
-  useEffect(() => {
-    searchAssets();
-  }, []);
+  useEffect(() => {searchAssets();}, []);
 
   async function getTPS() {
     const tps = await HeliusKey.rpc.getCurrentTPS();
