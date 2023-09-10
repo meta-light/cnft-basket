@@ -2,13 +2,11 @@
 import React, { useState, useEffect } from 'react';
 // import { clusterApiUrl } from '@solana/web3.js';
 import { Helius } from 'helius-sdk';
-import Bottleneck from 'bottleneck';
 
 export default function Home() {
   const [assetInfoList, setAssetInfoList] = useState([]); // Use state for assetInfoList
   const ownerAddress = "9cpGSYpRthttGo3QvidzWbd3nseHP3fGSURQvqsih7dw";
   const HeliusKey = new Helius("cfa7ca19-e84e-44f9-b4e0-8ea6eb251e1b");
-  const limiter = new Bottleneck({maxConcurrent: 5, minTime: 200});
 
   useEffect(() => {
     searchAssets();
@@ -22,51 +20,17 @@ export default function Home() {
   async function searchAssets() {
     try {
       const response = await HeliusKey.rpc.searchAssets({ ownerAddress, compressed: true, page: 1 });
-      const ids = response.items.map(item => item.id);
-      const assetInfos = await Promise.all(ids.map(id => limiter.schedule(() => getAssetInfoWithRetry(id))));
+      console.log(response);
+      const assetInfos = response.items.map(item => ({
+        name: String(item.content.metadata.name),
+        assetId: item.id,
+        state: item.compression.compressed,
+        image: item.content.links.image,
+      }));
       setAssetInfoList(assetInfos.filter(info => info && info.state));
     } catch (error) {
       console.error("Error in searchAssets:", error);
     }
-    console.log("Asset Info List:", assetInfoList);
-  }
-
-  async function getAssetInfoWithRetry(id, maxRetries = 3) {
-    let retries = 0;
-    while (retries < maxRetries) {
-      try {
-        const info = await getAssetInfo(id);
-        if (info.state) {
-          return info;
-        }
-      } catch (error) {
-        if (error.response && error.response.status === 429) {
-          const delay = Math.pow(2, retries) * 1000; // Exponential backoff in milliseconds
-          await new Promise(resolve => setTimeout(resolve, delay));
-          retries++;
-        } else {
-          console.error("Error in getAssetInfoWithRetry:", error);
-          break;
-        }
-      }
-    }
-    console.error(`Max retries (${maxRetries}) reached for getAssetInfoWithRetry.`);
-    return null;
-  }
-
-  async function getAssetInfo(id) {
-    const response = await HeliusKey.rpc.getAsset(id);
-    const name = String(response.content.metadata.name);
-    const state = response.compression.compressed;
-    const image = response.content.links.image;
-    const assetId = response.id;
-    await sleep(50);
-    console.log("asset logged");
-    return { name, assetId, state, image };
-  }
-
-  function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   return (
