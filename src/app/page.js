@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { Helius } from 'helius-sdk';
 import { pRateLimit } from "p-ratelimit";
-
 export default function Home() {
   const [assetInfoList, setAssetInfoList] = useState([]); // Use state for assetInfoList
   const ownerAddress = "9cpGSYpRthttGo3QvidzWbd3nseHP3fGSURQvqsih7dw";
@@ -13,7 +12,6 @@ export default function Home() {
     concurrency: 10, // no more than 10 running at once
     maxDelay: 2000, // an API call delayed > 2 sec is rejected
   });
-
   useEffect(() => {searchAssets();}, []);
 
   async function getTPS() {
@@ -70,4 +68,3 @@ export default function Home() {
     </main>
   )
 }
-
