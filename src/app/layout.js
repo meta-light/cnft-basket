@@ -1,6 +1,10 @@
 //Forked from github.com/Alleared/NFT-preview-card-project.git
 import './globals.css'
 import { Inter } from 'next/font/google'
+import ProviderWrapper from '../components/providers/ProviderWrapper'
+import ClientWalletProvider from '@/components/providers/WalletProvider'
+
+require('@solana/wallet-adapter-react-ui/styles.css');
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -12,7 +16,13 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <ProviderWrapper>
+          <ClientWalletProvider>
+            {children}
+          </ClientWalletProvider>
+        </ProviderWrapper>
+      </body>
     </html>
   )
 }
