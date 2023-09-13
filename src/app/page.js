@@ -3,17 +3,17 @@ import React, { useState, useEffect } from 'react';
 import { Helius } from 'helius-sdk';
 import { pRateLimit } from "p-ratelimit";
 import { useWallet } from '@solana/wallet-adapter-react';
-import Section from '../components/section'
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
+import Section from '../components/section'
 
 export default function Home() {
   const HeliusKey = new Helius("cfa7ca19-e84e-44f9-b4e0-8ea6eb251e1b");
   const wallet = useWallet();
+  const walletModal = useWalletModal()
   const [assetInfoList, setAssetInfoList] = useState([]);
   let ownerAddress = "";
   if (wallet && wallet.publicKey) { ownerAddress = wallet.publicKey.toString(); }
   useEffect(() => { init(); }, []);
-  const walletModal = useWalletModal();
 
   const heliusLimit = pRateLimit({
     interval: 60000, // 60000 ms == 1 minute
@@ -31,8 +31,9 @@ export default function Home() {
     if (wallet.connected) {
       console.log("PublicKey: ", wallet.publicKey.toString());
       searchAssets();
-    } else { console.log("Wallet not connected"); walletModal.setVisible(!walletModal.visible); }
-  };
+    } else { console.log("Wallet not connected"); 
+      //walletModal.setVisible(!walletModal.visible);  
+  }};
 
   async function searchAssets() {
     try {
