@@ -32,7 +32,7 @@ export default function Home() {
       console.log("PublicKey: ", wallet.publicKey.toString());
       searchAssets();
     } else { console.log("Wallet not connected"); 
-      //walletModal.setVisible(!walletModal.visible);  
+      //walletModal.setVisible(!walletModal.visible);
   }};
 
   async function searchAssets() {
