@@ -48,6 +48,14 @@ export default function Home() {
       setAssetInfoList(assetInfos.filter(info => info && info.state));
     } catch (error) { console.error("Error in searchAssets:", error);  }
   }
+  
+  async function login() { 
+    let connection = new solanaWeb3.Connection(conf.cluster, "confirmed");
+    provider = await wallet_provider();
+    console.log("Connection: ", connection);
+    console.log("Provider: ", provider);
+  }
+  login();
 
   return (
     <main>
