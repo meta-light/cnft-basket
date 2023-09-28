@@ -11,9 +11,9 @@ export default function Home() {
   const wallet = useWallet();
   const walletModal = useWalletModal()
   const [assetInfoList, setAssetInfoList] = useState([]);
-  let ownerAddress = "";
+  let ownerAddress = "Gmc26GMnhE3AWwdAQpxxsQPo6UYaob4wPRxUpmDsujoX";
   if (wallet && wallet.publicKey) { ownerAddress = wallet.publicKey.toString(); }
-  useEffect(() => { init(); }, []);
+  useEffect(() => { searchAssets(); }, []);
 
   const heliusLimit = pRateLimit({
     interval: 60000, // 60000 ms == 1 minute
@@ -27,13 +27,13 @@ export default function Home() {
     console.log("Solana TPS:", tps);
   }
   
-  async function init() {
-    if (wallet.connected) {
-      console.log("PublicKey: ", wallet.publicKey.toString());
-      searchAssets();
-    } else { console.log("Wallet not connected"); 
-      //walletModal.setVisible(!walletModal.visible);
-  }};
+  // async function init() {
+  //   if (wallet.connected) {
+  //     console.log("PublicKey: ", wallet.publicKey.toString());
+  //     searchAssets();
+  //   } else { console.log("Wallet not connected"); 
+  //     //walletModal.setVisible(!walletModal.visible);
+  // }};
 
   async function searchAssets() {
     try {
@@ -49,13 +49,13 @@ export default function Home() {
     } catch (error) { console.error("Error in searchAssets:", error);  }
   }
   
-  async function login() { 
-    let connection = new solanaWeb3.Connection(conf.cluster, "confirmed");
-    provider = await wallet_provider();
-    console.log("Connection: ", connection);
-    console.log("Provider: ", provider);
-  }
-  login();
+  // async function login() { 
+  //   let connection = new solanaWeb3.Connection(conf.cluster, "confirmed");
+  //   provider = await wallet_provider();
+  //   console.log("Connection: ", connection);
+  //   console.log("Provider: ", provider);
+  // }
+  // login();
 
   return (
     <main>
