@@ -390,12 +390,13 @@
 body {
     font-family: "Outfit", sans-serif;
     display: grid;
-    justify-content: left;
-    align-items: left;
+    justify-content: center;
+    align-items: center;
     min-height: flex;
     background-color: hsl(217, 54%, 11%);
     color: var(--WHITE);
     padding: 10px 0px 0px 10px;
+    width: 100%;
 }
 
 /* NTF CARD PREVIEW */
@@ -410,9 +411,14 @@ article {
 
 .article-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(300px, 1fr)); /* Create columns with minimum width of 300px */
+    grid-template-columns: repeat(4, minmax(300px, 1fr));
     grid-gap: 20px;
-    gap: 20px; /* Add gap between grid items */
+    gap: 20px;
+    width: 100%; /* Ensure the grid takes up the full width of its container */
+}
+
+.article-grid > * {
+    min-width: 0; /* Override any minimum width on the grid items */
 }
 
 /* MAIN IMAGE */
