@@ -21,27 +21,22 @@ export const Section = (props) => {
 
   const handleDisconnectWallet = () => {
     setIsConnected(false);
-    // Perform any additional disconnect logic if needed
   };
-
   
   return ( 
   <>
+    <section className="terminal-output-section">
+      <h>Assets Found: <strong>{assetInfoList.length > 0 ? `(${assetInfoList.length} items)` : ''}</strong></h>
+    </section>
+    <br></br>
     <section className="terminal-input-section" style={{ display: 'flex', alignItems: 'center' }}>
-    <Button className="btn btn-default" onClick={() => getTPS()} text="Get TPS" />
+    <Button className="btn btn-default" onClick={() => getTPS()} text="Update TPS" />
     <Button className="btn btn-default" text={"Search Assets"} onClick={() => searchAssets()} />
-    {isConnected ? (
-          <>
-            <WalletDisconnectButton onClick={handleDisconnectWallet} />
-          </>
+    {isConnected ? (<><WalletDisconnectButton onClick={handleDisconnectWallet} style={{ height: 40 }}/></>
         ) : (
           <Button onClick={handleConnectWallet} 
             text={walletModal.visible ? "Cancel" : "Connect Wallet"} className="btn btn-default" id="connect" />
         )}
-    </section>
-    <br></br>
-    <section className="terminal-output-section">
-      <h>Assets Found: {assetInfoList.length > 0 ? `(${assetInfoList.length} items)` : ''}</h>
     </section>
   </>
     )

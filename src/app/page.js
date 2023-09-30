@@ -5,19 +5,19 @@ import { pRateLimit } from "p-ratelimit";
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import Section from '../components/section'
-import * as web3 from '@solana/web3.js';
-
+//import * as web3 from '@solana/web3.js';
 
 export default function Home() {
   const HeliusKey = new Helius("cfa7ca19-e84e-44f9-b4e0-8ea6eb251e1b");
   const wallet = useWallet();
-  const walletModal = useWalletModal()
+  //const walletModal = useWalletModal()
   const [assetInfoList, setAssetInfoList] = useState([]);
   let ownerAddress = "";
   if (wallet && wallet.publicKey) { ownerAddress = wallet.publicKey.toString(); }
+  const [tps, setTps] = useState(null);
   
-  useEffect(() => {
-    if (wallet.connected) {
+  useEffect(() => { getTPS() } );
+  useEffect(() => { if (wallet.connected) {
       console.log("User's wallet address: ", wallet.publicKey?.toBase58());
       searchAssets();
     }
@@ -33,6 +33,7 @@ export default function Home() {
   async function getTPS() {
     const tps = await HeliusKey.rpc.getCurrentTPS();
     console.log("Solana TPS:", tps);
+    setTps(tps); // Set the value of tps
   }
 
   async function searchAssets() {
@@ -62,8 +63,11 @@ export default function Home() {
       <link rel="stylesheet" href="https://unpkg.com/terminal.css@0.7.2/dist/terminal.min.css" />
       <title>Basket</title>
       <section className="terminal-output">
-        <p>Welcome to the cNFT Basket</p>
+        <p>Welcome to <strong>cNFT Basket</strong></p>
         <div className="output-area"></div>
+      </section>
+      <section className="terminal-output">
+        <p>Solana Network TPS: <strong>{tps ? tps.toFixed(2) : null}</strong></p> {/* Replace `tps` with the variable that holds the TPS value */}
       </section>
       <Section assetInfoList={assetInfoList} getTPS={getTPS} searchAssets={searchAssets} />
       <br></br>
@@ -81,7 +85,7 @@ export default function Home() {
         ))}
       </div>
       <br></br>
-      <div className="terminal-output">Basket</div>
+      <div className="terminal-output"><strong>Basket - 2023</strong></div>
       <br></br>
     </main>
   )
