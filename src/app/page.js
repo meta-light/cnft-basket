@@ -38,7 +38,7 @@ export default function Home() {
 
   async function searchAssets() {
     try {
-      const response = await heliusLimit(() => HeliusKey.rpc.searchAssets({ ownerAddress, compressed: true, page: 1 }));
+      const response = await heliusLimit(() => HeliusKey.rpc.searchAssets({ ownerAddress, compressed: true, burnt: false, page: 1 }));
       console.log(response);
       const assetInfos = response.items.map(item => ({
         name: String(item.content.metadata.name),
