@@ -1,12 +1,9 @@
 'use client';
 import Button from './button'
-import Connector from './connecter';
 import { WalletDisconnectButton } from '@solana/wallet-adapter-react-ui';
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useState } from "react";
-
-
 
 export const Section = (props) => {
   const { assetInfoList, getTPS, searchAssets } = props
