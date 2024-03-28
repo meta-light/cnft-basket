@@ -1,6 +1,6 @@
 const web3 = require('@solana/web3.js');
 const { Helius } = require('helius-sdk');
-const HeliusKey = new Helius("cfa7ca19-e84e-44f9-b4e0-8ea6eb251e1b");
+const HeliusKey = new Helius("<API KEY>");
 const ownerAddress = "9cpGSYpRthttGo3QvidzWbd3nseHP3fGSURQvqsih7dw";
 
 let assetInfoList = [];
