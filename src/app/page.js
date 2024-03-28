@@ -8,7 +8,7 @@ import Section from '../components/section'
 //import * as web3 from '@solana/web3.js';
 
 export default function Home() {
-  const HeliusKey = new Helius("cfa7ca19-e84e-44f9-b4e0-8ea6eb251e1b");
+  const HeliusKey = new Helius("<API KEY>");
   const wallet = useWallet();
   //const walletModal = useWalletModal()
   const [assetInfoList, setAssetInfoList] = useState([]);
