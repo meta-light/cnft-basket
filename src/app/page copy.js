@@ -7,7 +7,7 @@ import Bottleneck from 'bottleneck';
 export default function Home() {
   const [assetInfoList, setAssetInfoList] = useState([]); // Use state for assetInfoList
   const ownerAddress = "9cpGSYpRthttGo3QvidzWbd3nseHP3fGSURQvqsih7dw";
-  const HeliusKey = new Helius("cfa7ca19-e84e-44f9-b4e0-8ea6eb251e1b");
+  const HeliusKey = new Helius("");
   const limiter = new Bottleneck({maxConcurrent: 5, minTime: 200});
 
   useEffect(() => {
